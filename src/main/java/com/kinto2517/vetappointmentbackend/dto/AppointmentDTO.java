@@ -5,6 +5,10 @@ import java.util.Date;
 public record AppointmentDTO(
         Long id,
         Date startTime,
-        Date endTime
+        Date endTime,
+        String meetingId,
+        String vetDoctorFullName,
+        String clientFirstName,
+        String clientLastName
 ) {
 }
