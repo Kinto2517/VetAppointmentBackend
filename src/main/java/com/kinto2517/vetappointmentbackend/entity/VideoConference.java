@@ -18,9 +18,6 @@ public class VideoConference {
 
     private String title;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateTime;
-
     private String meetingId;
 
     @OneToOne

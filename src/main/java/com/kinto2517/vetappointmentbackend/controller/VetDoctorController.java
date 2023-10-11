@@ -21,7 +21,6 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/vetdoctors")
-@PreAuthorize("hasRole('VETDOCTOR')")
 public class VetDoctorController {
 
     private final VetDoctorService vetDoctorService;

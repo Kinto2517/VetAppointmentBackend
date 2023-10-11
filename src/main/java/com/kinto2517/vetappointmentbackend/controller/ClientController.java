@@ -21,7 +21,6 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/v1/clients")
-@PreAuthorize("hasRole('CLIENT')")
 public class ClientController {
 
     private final ClientService clientService;

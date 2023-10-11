@@ -22,7 +22,7 @@ public class Rating {
     @Column(nullable = false)
     private int ratingValue;
 
-    @Lob
+    @Column(nullable = false, length = 1000)
     private String reviewText;
 
     @ManyToOne

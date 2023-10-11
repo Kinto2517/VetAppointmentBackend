@@ -49,5 +49,11 @@ public class RatingController {
         return ResponseEntity.ok(ratingService.getRatingsByVetDoctorId(vetdoctorid));
     }
 
+    @GetMapping("/vetdoctor/{vetdoctorid}/average")
+    public ResponseEntity<Double> getAverageRatingByVetDoctorId(@PathVariable Long vetdoctorid) {
+        return ResponseEntity.ok(ratingService.getAverageRatingByVetDoctorId(vetdoctorid));
+    }
+
+
 
 }

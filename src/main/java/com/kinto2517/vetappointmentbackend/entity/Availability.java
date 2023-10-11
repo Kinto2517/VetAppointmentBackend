@@ -21,10 +21,6 @@ public class Availability {
     @JoinColumn(name = "vetdoctor_id", nullable = false)
     private VetDoctor vetDoctor;
 
-    @Temporal(TemporalType.DATE)
-    @Column(nullable = false)
-    private Date date;
-
     @Temporal(TemporalType.TIME)
     @Column(nullable = false)
     private Date startTime;

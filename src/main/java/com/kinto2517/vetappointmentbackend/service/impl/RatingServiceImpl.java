@@ -10,7 +10,11 @@ import com.kinto2517.vetappointmentbackend.repository.ClientRepository;
 import com.kinto2517.vetappointmentbackend.repository.RatingRepository;
 import com.kinto2517.vetappointmentbackend.repository.VetDoctorRepository;
 import com.kinto2517.vetappointmentbackend.service.RatingService;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class RatingServiceImpl implements RatingService {
@@ -26,16 +30,31 @@ public class RatingServiceImpl implements RatingService {
     }
 
     @Override
+    @Transactional
     public RatingDTO createRating(Long clientid, Long vetdoctorid, RatingSaveRequest ratingSaveRequest) {
         Client client = clientRepository.findById(clientid).orElseThrow();
         VetDoctor vetDoctor = vetDoctorRepository.findById(vetdoctorid).orElseThrow();
-        Rating rating = new Rating();
+        Rating rating = RatingMapper.INSTANCE.ratingSaveRequestToRating(ratingSaveRequest);
         rating.setClient(client);
         rating.setVetDoctor(vetDoctor);
-        rating.setRatingValue(ratingSaveRequest.rating());
-        rating.setReviewText(ratingSaveRequest.comment());
+        rating.setRatingDate(new Date());
         Rating savedRating = ratingRepository.save(rating);
 
         return RatingMapper.INSTANCE.ratingToRatingDTO(savedRating);
+    }
+
+    @Override
+    @Transactional
+    public List<RatingDTO> getRatingsByVetDoctorId(Long vetdoctorid) {
+        List<Rating> ratings = ratingRepository.findByVetDoctorId(vetdoctorid);
+        return RatingMapper.INSTANCE.ratingsToRatingDTOs(ratings);
+    }
+
+    @Override
+    @Transactional
+    public Double getAverageRatingByVetDoctorId(Long vetdoctorid) {
+        List<Rating> ratings = ratingRepository.findByVetDoctorId(vetdoctorid);
+        Double averageRating = ratings.stream().mapToDouble(Rating::getRatingValue).average().orElse(0.0);
+        return averageRating;
     }
 }

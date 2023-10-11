@@ -11,4 +11,6 @@ public interface RatingService {
     RatingDTO createRating(Long clientid, Long vetdoctorid, RatingSaveRequest ratingSaveRequest);
 
     List<RatingDTO> getRatingsByVetDoctorId(Long vetdoctorid);
+
+    Double getAverageRatingByVetDoctorId(Long vetdoctorid);
 }

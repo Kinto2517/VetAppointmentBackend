@@ -17,6 +17,7 @@ import com.kinto2517.vetappointmentbackend.token.TokenRepository;
 import com.kinto2517.vetappointmentbackend.token.TokenType;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -38,6 +39,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final TokenRepository tokenRepository;
 
+    @Transactional
     public AuthenticationResponse clientRegister(ClientSaveRequest request) {
         var client = Client.builder()
                 .firstName(request.firstName())
@@ -58,6 +60,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    @Transactional
     public AuthenticationResponse vetDoctorRegister(VetDoctorSaveRequest request) {
         var vetDoctor = VetDoctor
                 .builder()
@@ -79,6 +82,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .refreshToken(refreshToken)
                 .build();
     }
+
 
     public AuthenticationResponse authenticateClient(AuthenticationRequest request) {
         authenticationManager.authenticate(
@@ -118,6 +122,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    @Transactional
     private void saveClientToken(Client client, String jwtToken) {
         var token = Token.builder()
                 .user(client)
@@ -129,6 +134,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         tokenRepository.save(token);
     }
 
+    @Transactional
     private void saveVetDoctorToken(VetDoctor vetDoctor, String jwtToken) {
         var token = Token.builder()
                 .user(vetDoctor)

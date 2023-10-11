@@ -2,10 +2,9 @@ package com.kinto2517.vetappointmentbackend.dto;
 
 import java.util.Date;
 
-public record RatingDTO(
+public record AppointmentDTO(
         Long id,
-        int ratingValue,
-        String reviewText
-
+        Date startTime,
+        Date endTime
 ) {
 }
