@@ -3,7 +3,6 @@ package com.kinto2517.vetappointmentbackend.service.impl;
 import com.kinto2517.vetappointmentbackend.controller.VetDoctorController;
 import com.kinto2517.vetappointmentbackend.dto.*;
 import com.kinto2517.vetappointmentbackend.entity.*;
-import com.kinto2517.vetappointmentbackend.kafka.NotificationProducer;
 import com.kinto2517.vetappointmentbackend.repository.*;
 import com.kinto2517.vetappointmentbackend.service.AppointmentConferenceService;
 import jakarta.persistence.EntityNotFoundException;
@@ -27,7 +26,6 @@ public class AppointmentConferenceServiceImpl implements AppointmentConferenceSe
     private final VideoConferenceRepository videoConferenceRepository;
     private final AvailabilityRepository availabilityRepository;
     private final NotificationRepository notificationRepository;
-    private final NotificationProducer notificationProducer;
     private static final Logger logger = LoggerFactory.getLogger(VetDoctorController.class);
 
     @Autowired
@@ -35,14 +33,14 @@ public class AppointmentConferenceServiceImpl implements AppointmentConferenceSe
                                             ClientRepository clientRepository,
                                             VetDoctorRepository vetDoctorRepository,
                                             VideoConferenceRepository videoConferenceRepository,
-                                            AvailabilityRepository availabilityRepository, NotificationRepository notificationRepository, NotificationProducer notificationProducer) {
+                                            AvailabilityRepository availabilityRepository,
+                                            NotificationRepository notificationRepository) {
         this.appointmentRepository = appointmentRepository;
         this.clientRepository = clientRepository;
         this.vetDoctorRepository = vetDoctorRepository;
         this.videoConferenceRepository = videoConferenceRepository;
         this.availabilityRepository = availabilityRepository;
         this.notificationRepository = notificationRepository;
-        this.notificationProducer = notificationProducer;
     }
 
 
