@@ -1,5 +1,6 @@
 package com.kinto2517.vetappointmentbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -35,6 +36,7 @@ public class VetDoctor extends User {
 
     // One-to-Many relationship with Appointment entities
     @OneToMany(mappedBy = "vetDoctor")
+    @JsonBackReference
     private Set<Appointment> appointments = new HashSet<>();
 
     // One-to-Many relationship with Rating entities
@@ -69,7 +71,6 @@ public class VetDoctor extends User {
     // One-to-Many relationship with ChatMessage sender entities
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ChatMessage> sentMessages = new HashSet<>();
-
 
     // One-to-Many relationship with Education entities
     @OneToMany(mappedBy = "vetDoctor")

@@ -1,8 +1,10 @@
 package com.kinto2517.vetappointmentbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.Date;
 
 @Entity
@@ -26,11 +28,11 @@ public class Appointment {
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date startTime;
+    private Instant startTime;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date endTime;
+    private Instant endTime;
 
     @OneToOne(mappedBy = "appointment")
     private VideoConference videoConference;

@@ -24,11 +24,11 @@ public class Notification {
     private Date sentDate;
 
     @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
+    @JoinColumn(name = "client_id")
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "vetdoctor_id", nullable = false)
+    @JoinColumn(name = "vetdoctor_id")
     private VetDoctor vetDoctor;
 
 

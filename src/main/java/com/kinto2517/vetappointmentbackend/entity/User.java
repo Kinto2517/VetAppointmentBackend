@@ -1,6 +1,7 @@
 package com.kinto2517.vetappointmentbackend.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kinto2517.vetappointmentbackend.enums.Role;
 import com.kinto2517.vetappointmentbackend.token.Token;
 import jakarta.persistence.*;
@@ -39,6 +40,7 @@ public class User implements UserDetails {
     private Role role;
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Token> tokens;
 
     @Override

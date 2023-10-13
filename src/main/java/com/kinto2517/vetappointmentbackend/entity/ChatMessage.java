@@ -25,7 +25,7 @@ public class ChatMessage {
     @JoinColumn(name = "receiver_id", nullable = false)
     private User receiver;
 
-    @Column(nullable = false, length = 1000) // Adjust length as needed
+    @Column(nullable = false, length = 1000)
     private String content;
 
     @Temporal(TemporalType.TIMESTAMP)

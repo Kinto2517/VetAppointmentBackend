@@ -3,13 +3,12 @@ package com.kinto2517.vetappointmentbackend.dto;
 import java.time.Instant;
 import java.util.Date;
 
-public record AppointmentDTO(
+public record AvailabilityDTO(
         Long id,
         Instant startTime,
         Instant endTime,
-        String meetingId,
-        String vetDoctorFullName,
-        String clientFirstName,
-        String clientLastName
+        boolean booked,
+        String vetDoctorFullName
+
 ) {
 }

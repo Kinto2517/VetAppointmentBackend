@@ -1,5 +1,6 @@
 package com.kinto2517.vetappointmentbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.*;
 import jakarta.persistence.*;
 import lombok.experimental.SuperBuilder;

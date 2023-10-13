@@ -1,16 +1,10 @@
 package com.kinto2517.vetappointmentbackend.service.impl;
 
 import com.kinto2517.vetappointmentbackend.controller.VetDoctorController;
-import com.kinto2517.vetappointmentbackend.dto.AppointmentConferenceSaveRequest;
-import com.kinto2517.vetappointmentbackend.dto.AppointmentDTO;
-import com.kinto2517.vetappointmentbackend.entity.Appointment;
-import com.kinto2517.vetappointmentbackend.entity.Client;
-import com.kinto2517.vetappointmentbackend.entity.VetDoctor;
-import com.kinto2517.vetappointmentbackend.entity.VideoConference;
-import com.kinto2517.vetappointmentbackend.repository.AppointmentRepository;
-import com.kinto2517.vetappointmentbackend.repository.ClientRepository;
-import com.kinto2517.vetappointmentbackend.repository.VetDoctorRepository;
-import com.kinto2517.vetappointmentbackend.repository.VideoConferenceRepository;
+import com.kinto2517.vetappointmentbackend.dto.*;
+import com.kinto2517.vetappointmentbackend.entity.*;
+import com.kinto2517.vetappointmentbackend.kafka.NotificationProducer;
+import com.kinto2517.vetappointmentbackend.repository.*;
 import com.kinto2517.vetappointmentbackend.service.AppointmentConferenceService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -31,17 +25,24 @@ public class AppointmentConferenceServiceImpl implements AppointmentConferenceSe
     private final ClientRepository clientRepository;
     private final VetDoctorRepository vetDoctorRepository;
     private final VideoConferenceRepository videoConferenceRepository;
+    private final AvailabilityRepository availabilityRepository;
+    private final NotificationRepository notificationRepository;
+    private final NotificationProducer notificationProducer;
     private static final Logger logger = LoggerFactory.getLogger(VetDoctorController.class);
 
     @Autowired
     public AppointmentConferenceServiceImpl(AppointmentRepository appointmentRepository,
                                             ClientRepository clientRepository,
                                             VetDoctorRepository vetDoctorRepository,
-                                            VideoConferenceRepository videoConferenceRepository) {
+                                            VideoConferenceRepository videoConferenceRepository,
+                                            AvailabilityRepository availabilityRepository, NotificationRepository notificationRepository, NotificationProducer notificationProducer) {
         this.appointmentRepository = appointmentRepository;
         this.clientRepository = clientRepository;
         this.vetDoctorRepository = vetDoctorRepository;
         this.videoConferenceRepository = videoConferenceRepository;
+        this.availabilityRepository = availabilityRepository;
+        this.notificationRepository = notificationRepository;
+        this.notificationProducer = notificationProducer;
     }
 
 
@@ -67,8 +68,9 @@ public class AppointmentConferenceServiceImpl implements AppointmentConferenceSe
         Optional<Appointment> existingAppointment = appointmentRepository.findById(id);
 
         if (existingAppointment.isPresent()) {
-             appointmentRepository.delete(existingAppointment.get());
-             return null;
+            logger.info("Deleting appointment with ID " + id);
+            appointmentRepository.delete(existingAppointment.get());
+            return null;
         } else {
             throw new EntityNotFoundException("Appointment with ID " + id + " not found");
         }
@@ -90,7 +92,8 @@ public class AppointmentConferenceServiceImpl implements AppointmentConferenceSe
                         appointment.getClient().getFirstName(),
                         appointment.getClient().getLastName()))
                 .collect(Collectors.toList());
-
+        logger.info("Getting appointments for client with name " + client.getFirstName() + " " + client.getLastName());
+        logger.info("Getting appointments for client with ID " + client.getId());
         return appointmentDTOs;
     }
 
@@ -109,6 +112,8 @@ public class AppointmentConferenceServiceImpl implements AppointmentConferenceSe
                         appointment.getClient().getFirstName(),
                         appointment.getClient().getLastName()))
                 .collect(Collectors.toList());
+        logger.info("Getting appointments for vet doctor with name " + vetDoctor.getFullName());
+        logger.info("Getting appointments for vet doctor with ID " + vetDoctor.getId());
 
         return appointmentDTOs;
     }
@@ -116,40 +121,186 @@ public class AppointmentConferenceServiceImpl implements AppointmentConferenceSe
     @Override
     @Transactional
     public AppointmentDTO createAppointment(Long clientId, Long vetDoctorId, AppointmentConferenceSaveRequest appointmentConferenceSaveRequest) {
+
         Client client = clientRepository.findById(clientId).orElseThrow();
         VetDoctor vetDoctor = vetDoctorRepository.findById(vetDoctorId).orElseThrow();
 
-        logger.info("Client: {}", client);
-        logger.info("VetDoctor: {}", vetDoctor);
+        List<Availability> availabilities = availabilityRepository.findByVetDoctor(vetDoctor);
 
-        Appointment appointment = new Appointment();
+        for (Availability availability : availabilities) {
+            logger.info("Availability with start time " + availability.getStartTime() + " and end time " + availability.getEndTime());
+            logger.info("Appointment with start time " + appointmentConferenceSaveRequest.startTime() + " and end time " + appointmentConferenceSaveRequest.endTime());
+            if (availability.getStartTime().equals(appointmentConferenceSaveRequest.startTime())
+                    && availability.getEndTime().equals(appointmentConferenceSaveRequest.endTime())) {
+                if (availability.isBooked()) {
+                    logger.info("Availability with ID " + availability.getId() + " is already booked");
+                    throw new EntityNotFoundException("Availability with ID " + availability.getId() + " is already booked");
+                } else {
+                    Appointment appointment = new Appointment();
+                    appointment.setClient(client);
+                    appointment.setVetDoctor(vetDoctor);
+                    appointment.setStartTime(appointmentConferenceSaveRequest.startTime());
+                    appointment.setEndTime(appointmentConferenceSaveRequest.endTime());
 
-        appointment.setClient(client);
-        appointment.setVetDoctor(vetDoctor);
-        appointment.setStartTime(appointmentConferenceSaveRequest.startTime());
-        appointment.setEndTime(appointmentConferenceSaveRequest.endTime());
+                    VideoConference videoConference = new VideoConference();
+                    videoConference.setTitle("[Company] Zoom Call With " + vetDoctor.getFullName() + " at " + appointmentConferenceSaveRequest.startTime());
+                    videoConference.setMeetingId(appointmentConferenceSaveRequest.meetingId());
 
-        VideoConference videoConference = new VideoConference();
-        videoConference.setTitle("[Company] Zoom Call With " + vetDoctor.getFullName() + " at " + appointmentConferenceSaveRequest.startTime());
-        videoConference.setMeetingId(appointmentConferenceSaveRequest.meetingId());
+                    appointment.setVideoConference(videoConference);
+                    videoConference.setAppointment(appointment);
 
-        videoConference.setAppointment(appointment);
-        appointment.setVideoConference(videoConference);
+                    appointmentRepository.save(appointment);
+                    videoConferenceRepository.save(videoConference);
 
-        videoConferenceRepository.save(videoConference);
-        appointmentRepository.save(appointment);
+                    availability.setBooked(true);
+                    availabilityRepository.save(availability);
 
-        logger.info("Appointment: {}", appointment);
-        logger.info("VideoConference: {}", videoConference);
+                    sendNotificationToClient(client, vetDoctor);
 
+                    sendNotificationToVetDoctor(vetDoctor, client);
 
-        return new AppointmentDTO(appointment.getId(),
-                appointment.getStartTime(),
-                appointment.getEndTime(),
-                appointment.getVideoConference().getMeetingId(),
-                appointment.getVetDoctor().getFullName(),
-                appointment.getClient().getFirstName(),
-                appointment.getClient().getLastName());
+                    logger.info("Creating appointment for client with name " + client.getFirstName() + " " + client.getLastName());
+                    logger.info("Creating appointment for vet doctor with name " + vetDoctor.getFullName());
 
+                    return new AppointmentDTO(appointment.getId(), appointment.getStartTime(), appointment.getEndTime(), appointment.getVideoConference().getMeetingId(), appointment.getVetDoctor().getFullName(), appointment.getClient().getFirstName(), appointment.getClient().getLastName());
+                }
+            } else {
+                logger.info("Availability with start time " + appointmentConferenceSaveRequest.startTime() +
+                        " is not the same with " + availability.getStartTime() + " and end time " + appointmentConferenceSaveRequest.endTime() +
+                        " is not the same with " + availability.getEndTime());
+            }
+
+        }
+        throw new EntityNotFoundException("Availability with start time " + appointmentConferenceSaveRequest.startTime() + " and end time " + appointmentConferenceSaveRequest.endTime() + " not found");
+    }
+
+    private void sendNotificationToClient(Client client, VetDoctor vetDoctor) {
+        Notification notification = new Notification();
+        String message = "You have a new appointment with " + vetDoctor.getFullName() + " at " + new Date();
+        notification.setMessage(message);
+        notification.setSentDate(new Date());
+        notification.setClient(client);
+        notification.setVetDoctor(null);
+        notificationRepository.save(notification);
+        logger.info("Sending notification to client: " + client.getFirstName() + " " + client.getLastName());
+    }
+
+    private void sendNotificationToVetDoctor(VetDoctor vetDoctor, Client client) {
+        Notification notification = new Notification();
+        String message = "You have a new appointment with " + client.getFirstName() + " " + client.getLastName() + " at " + new Date();
+        notification.setMessage(message);
+        notification.setSentDate(new Date());
+        notification.setVetDoctor(vetDoctor);
+        notification.setClient(null);
+        notificationRepository.save(notification);
+        logger.info("Sending notification to vet doctor: " + vetDoctor.getFullName());
+    }
+
+    @Override
+    @Transactional
+    public AvailabilityDTO createAvailability(Long vetDoctorId, AvailabilitySaveRequest availabilitySaveRequest) {
+        VetDoctor vetDoctor = vetDoctorRepository.findById(vetDoctorId).orElseThrow();
+
+        Availability availability = new Availability();
+        availability.setStartTime(availabilitySaveRequest.startTime());
+        availability.setEndTime(availabilitySaveRequest.endTime());
+        availability.setBooked(false);
+        availability.setVetDoctor(vetDoctor);
+        availabilityRepository.save(availability);
+        vetDoctor.getAvailabilities().add(availability);
+
+        logger.info("Creating availability for vet doctor with name " + vetDoctor.getFullName());
+
+        return new AvailabilityDTO(
+                availability.getId(),
+                availability.getStartTime(),
+                availability.getEndTime(),
+                availability.isBooked(),
+                availability.getVetDoctor().getFullName());
+    }
+
+    @Override
+    @Transactional
+    public List<AvailabilityDTO> getVetDoctorAvailabilities(Long vetDoctorId) {
+        VetDoctor vetDoctor = vetDoctorRepository.findById(vetDoctorId).orElseThrow();
+        List<Availability> availabilities = availabilityRepository.findByVetDoctor(vetDoctor);
+
+        List<AvailabilityDTO> availabilityDTOs = availabilities.stream()
+                .map(availability -> new AvailabilityDTO(
+                        availability.getId(),
+                        availability.getStartTime(),
+                        availability.getEndTime(),
+                        availability.isBooked(),
+                        availability.getVetDoctor().getFullName()))
+                .collect(Collectors.toList());
+
+        return availabilityDTOs;
+    }
+
+    @Override
+    @Transactional
+    public Void deleteAvailability(Long id) {
+        Optional<Availability> existingAvailability = availabilityRepository.findById(id);
+
+        if (existingAvailability.isPresent()) {
+            logger.info("Deleting availability with ID " + id);
+            availabilityRepository.delete(existingAvailability.get());
+            return null;
+        } else {
+            throw new EntityNotFoundException("Availability with ID " + id + " not found");
+        }
+    }
+
+    @Override
+    @Transactional
+    public List<NotificationDTO> getClientNotifications(Long clientId) {
+        Client client = clientRepository.findById(clientId).orElseThrow();
+        List<Notification> notifications = notificationRepository.findByClientAndVetDoctorNull(client);
+
+        if (notifications.isEmpty()) {
+            throw new EntityNotFoundException("Notifications for client with ID " + clientId + " not found");
+        }
+        List<NotificationDTO> notificationDTOs = notifications.stream()
+                .map(notification -> new NotificationDTO(
+                        notification.getId(),
+                        notification.getMessage()
+                ))
+                .collect(Collectors.toList());
+        logger.info("Getting notifications for client with name " + client.getFirstName() + " " + client.getLastName());
+        return notificationDTOs;
+    }
+
+    @Override
+    @Transactional
+    public List<NotificationDTO> getVetDoctorNotifications(Long vetDoctorId) {
+        VetDoctor vetDoctor = vetDoctorRepository.findById(vetDoctorId).orElseThrow();
+        List<Notification> notifications = notificationRepository.findByVetDoctorAndClientNull(vetDoctor);
+        if (notifications.isEmpty()) {
+            throw new EntityNotFoundException("Notifications for vet doctor with ID " + vetDoctorId + " not found");
+        }
+        List<NotificationDTO> notificationDTOs = notifications.stream()
+                .map(notification -> new NotificationDTO(
+                        notification.getId(),
+                        notification.getMessage()
+                ))
+                .collect(Collectors.toList());
+        logger.info("Getting notifications for vet doctor with name " + vetDoctor.getFullName());
+        return notificationDTOs;
+    }
+
+    @Override
+    public Void deleteVetDoctorNotification(Long id) {
+        Notification notification = notificationRepository.findById(id).orElseThrow();
+        logger.info("Deleting notification with ID " + id);
+        notificationRepository.delete(notification);
+        return null;
+    }
+
+    @Override
+    public Void deleteClientNotification(Long id) {
+        Notification notification = notificationRepository.findById(id).orElseThrow();
+        logger.info("Deleting notification with ID " + id);
+        notificationRepository.delete(notification);
+        return null;
     }
 }

@@ -1,8 +1,11 @@
 package com.kinto2517.vetappointmentbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -21,13 +24,13 @@ public class Availability {
     @JoinColumn(name = "vetdoctor_id", nullable = false)
     private VetDoctor vetDoctor;
 
-    @Temporal(TemporalType.TIME)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date startTime;
+    private Instant startTime;
 
-    @Temporal(TemporalType.TIME)
+    @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = false)
-    private Date endTime;
+    private Instant endTime;
 
     private boolean booked;
 
