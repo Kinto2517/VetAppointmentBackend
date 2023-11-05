@@ -9,7 +9,7 @@
     <li>
       <a href="#getting-started">Getting Started</a>
     </li>
-    <li><a href="#built-with">Usage</a></li>
+    <li><a href="#built-with">Built With</a></li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#contributing">Contributing</a></li>
     <li><a href="#contact">Contact</a></li>
@@ -164,6 +164,23 @@ Start the project with your favorite IDE with Docker running.
 * DELETE /api/v1/appointments/delete-client-notification/{client_id}/{id}: Delete a notification for a client.
 * DELETE /api/v1/appointments/delete-availability/{vet_doctor_id}/{id}: Delete an availability slot for a vet doctor.
 * DELETE /api/v1/appointments/delete-appointment/{client_id}/{id}: Delete an appointment for a client.
+
+### Relation between the entities
+
+* Client and Pet: One-to-many (Each client can have multiple pets, and each pet belongs to one client).
+* Client and Appointment: One-to-many (Each client can have multiple appointments, and each appointment is associated with one client).
+* Client and Notification: One-to-many (Each client can have multiple notifications).
+* Client and ChatMessage: One-to-many (Each client can have multiple chat messages).
+* Client and Review: One-to-many (Each client can write multiple reviews, and each review is associated with one client).
+
+* VetDoctor and Appointment: One-to-many (Each vet doctor can have multiple appointments, and each appointment is associated with one vet doctor).
+* VetDoctor and ratings: One-to-many (Each vet doctor can receive multiple reviews, and each review is associated with one vet doctor).
+* VetDoctor and Specialization: Many-to-many (Each vet doctor can have multiple specializations, and each specialization can be associated with multiple vet doctors).
+* VetDoctor and Notification: One-to-many (Each vet doctor can have multiple notifications).
+* VetDoctor and Availability: One-to-many (Each vet doctor can have multiple availability entries).
+* VetDoctor and ChatMessage: One-to-many (Each vet doctor can have multiple chat messages).
+
+* Appointment and VideoConference: One-to-one (Each appointment can have one associated video conference).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
