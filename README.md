@@ -186,8 +186,8 @@ Don't forget to give the project a star! Thanks again!
 
 ## Contact
 
-Ersin Yılmaz ASLAN - [@My LinkedIn]([https://twitter.com/your_username](https://tr.linkedin.com/in/ersinya))
+Ersin Yılmaz ASLAN - [@My LinkedIn](https://tr.linkedin.com/in/ersinya)
 
-Project Link: [Vet Appointment Backend]([https://github.com/your_username/repo_name](https://github.com/Kinto2517/VetAppointmentBackend))
+Project Link: [Vet Appointment Backend](https://github.com/Kinto2517/VetAppointmentBackend)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
