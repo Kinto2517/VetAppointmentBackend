@@ -33,8 +33,8 @@ This backend is implemented using modern web technologies, including Java, Sprin
 
 Before you begin, make sure you have the following prerequisites:
 
-Docker installed on your system.
-Docker Compose installed.
+* Docker installed on your system.
+* Docker Compose installed.
 
 ### Installation Steps
 
@@ -77,9 +77,9 @@ Start the project with your favorite IDE with Docker running.
 
 ## Built With
 
-![Spring](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
-![PostgreSql](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
-![Apache Kafka](https://img.shields.io/badge/Apache%20Kafka-000?style=for-the-badge&logo=apachekafka)
+* ![Spring](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
+* ![PostgreSql](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
+* ![Apache Kafka](https://img.shields.io/badge/Apache%20Kafka-000?style=for-the-badge&logo=apachekafka)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -87,9 +87,37 @@ Start the project with your favorite IDE with Docker running.
 
 ## Usage
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+* ![Screenshot_1](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/c2037ce3-10cb-4e30-a5bd-8e125be65618)
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+### Vet Doctor Controller
+
+PUT /api/v1/vetdoctors/{id}: Update a VetDoctor's profile including City, Description, Phone Number, Name.
+PUT /api/v1/vetdoctors/{id}/update-specializations: Update a VetDoctor's specializations. This allows doctor to add pre-created specialization.
+PUT /api/v1/vetdoctors/{id}/update-experience/{experienceId}: Update a VetDoctor's experience that already created.
+PUT /api/v1/vetdoctors/{id}/update-education/{educationId}: Update a VetDoctor's education that already created.
+PUT /api/v1/vetdoctors/{id}/add-profile-picture: Add or update a VetDoctor's profile picture. You can select "png", "jpg" or "jpeg"
+POST /api/v1/vetdoctors/{id}/add-experience: Add a new experience to a VetDoctor's profile.
+POST /api/v1/vetdoctors/{id}/add-education: Add a new education to a VetDoctor's profile.
+PATCH /api/v1/vetdoctors/change-password: Change the password for a VetDoctor. Spring security handle the authentication backend and makes sure that you change only your own password.
+GET /api/v1/vetdoctors/{id}/specializations: Retrieve a VetDoctor's specializations.
+
+- These APIs for clients to see the doctors.
+GET /api/v1/vetdoctors/{id}/experiences: Retrieve a VetDoctor's experience records.
+GET /api/v1/vetdoctors/{id}/educations: Retrieve a VetDoctor's education records.
+GET /api/v1/vetdoctors/all: Retrieve information about all VetDoctors.
+
+DELETE /api/v1/vetdoctors/{id}/delete-experience/{experienceId}: Delete a specific experience record for a VetDoctor.
+DELETE /api/v1/vetdoctors/{id}/delete-education/{educationId}: Delete a specific education record for a VetDoctor.
+
+
+![Screenshot_2](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/bc93ac92-3351-44e5-b576-3170430d4bb7)
+
+![Screenshot_3](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/dd103329-c6ef-4248-874c-93dda168199f)
+
+![Screenshot_4](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/ff34c712-1146-42c7-bfa1-436b348efa15)
+
+![Screenshot_5](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/ca7e8f73-52c6-48d9-a586-6bc3ccc48868)
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
