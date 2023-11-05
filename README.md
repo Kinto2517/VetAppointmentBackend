@@ -95,7 +95,7 @@ PUT /api/v1/vetdoctors/{id}: Update a VetDoctor's profile including City, Descri
 PUT /api/v1/vetdoctors/{id}/update-specializations: Update a VetDoctor's specializations. This allows doctor to add pre-created specialization.
 PUT /api/v1/vetdoctors/{id}/update-experience/{experienceId}: Update a VetDoctor's experience that already created.
 PUT /api/v1/vetdoctors/{id}/update-education/{educationId}: Update a VetDoctor's education that already created.
-PUT /api/v1/vetdoctors/{id}/add-profile-picture: Add or update a VetDoctor's profile picture. You can select "png", "jpg" or "jpeg"
+PUT /api/v1/vetdoctors/{id}/add-profile-picture: Add or update a VetDoctor's profile picture. You can upload "png", "jpg" or "jpeg" images.
 POST /api/v1/vetdoctors/{id}/add-experience: Add a new experience to a VetDoctor's profile.
 POST /api/v1/vetdoctors/{id}/add-education: Add a new education to a VetDoctor's profile.
 PATCH /api/v1/vetdoctors/change-password: Change the password for a VetDoctor. Spring security handle the authentication backend and makes sure that you change only your own password.
@@ -110,7 +110,21 @@ DELETE /api/v1/vetdoctors/{id}/delete-experience/{experienceId}: Delete a specif
 DELETE /api/v1/vetdoctors/{id}/delete-education/{educationId}: Delete a specific education record for a VetDoctor.
 
 
-![Screenshot_2](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/bc93ac92-3351-44e5-b576-3170430d4bb7)
+* ![Screenshot_2](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/bc93ac92-3351-44e5-b576-3170430d4bb7)
+  
+### Client Controller
+
+* PUT /api/v1/clients/{id}: Update a client's profile data.
+
+* GET /api/v1/clients/{id}/pets: Retrieve a client's pet information.
+* GET /api/v1/clients/{id}/get-profile-picture-pet/{petId}: Retrieve a pet's profile picture under a client's profile. 
+* PUT /api/v1/clients/{id}/update-pet/{petId}: Update a pet's information under a client's profile.
+* PUT /api/v1/clients/{id}/add-profile-picture-pet/{petId}: Add or update a pet's profile picture under a client's profile. You can upload "png", "jpg" or "jpeg" images.
+* POST /api/v1/clients/{id}/add-pet: Add a new pet to a client's profile.
+* DELETE /api/v1/clients/{id}/delete-pet/{petId}: Delete a specific pet under a client's profile.
+
+* PATCH /api/v1/clients/change-password: Change the password for a client.
+* GET /api/v1/clients/all: Retrieve information about all clients. /* This is a temp API call that will removed */
 
 ![Screenshot_3](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/dd103329-c6ef-4248-874c-93dda168199f)
 
