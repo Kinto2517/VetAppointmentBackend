@@ -1,6 +1,5 @@
 package com.kinto2517.vetappointmentbackend.security;
 
-import com.kinto2517.vetappointmentbackend.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,14 +13,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 
-
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
-import static com.kinto2517.vetappointmentbackend.enums.Role.*;
 import static com.kinto2517.vetappointmentbackend.enums.Permission.*;
+import static com.kinto2517.vetappointmentbackend.enums.Role.*;
+import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @EnableWebSecurity
@@ -50,9 +44,12 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                .authenticationProvider(authenticationProvider)
                 .authorizeHttpRequests(req ->
                         req.requestMatchers(WHITE_LIST_URL)
                                 .permitAll()
+                                .requestMatchers("/login").permitAll()
                                 .requestMatchers("/api/v1/clients/**").hasAnyRole(CLIENT.name(), ADMIN.name())
                                 .requestMatchers(GET, "/api/v1/clients/**").hasAnyAuthority(CLIENT_READ.name(), ADMIN_READ.name())
                                 .requestMatchers(POST, "/api/v1/clients/**").hasAnyAuthority(CLIENT_CREATE.name(), ADMIN_CREATE.name())
@@ -66,15 +63,12 @@ public class SecurityConfig {
                                 .anyRequest()
                                 .authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .logout(logout ->
                         logout.logoutUrl("/api/v1/auth/logout")
                                 .addLogoutHandler(logoutHandler)
                                 .logoutSuccessHandler((request, response, authentication) -> SecurityContextHolder.clearContext())
                 )
-        ;
+                ;
 
         return http.build();
     }

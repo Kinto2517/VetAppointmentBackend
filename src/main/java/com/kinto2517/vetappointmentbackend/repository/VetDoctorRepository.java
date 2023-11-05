@@ -8,4 +8,8 @@ import java.util.Optional;
 public interface VetDoctorRepository extends JpaRepository<VetDoctor, Long> {
 
     Optional<VetDoctor> findByUsername(String username);
- }
+
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
+}

@@ -2,21 +2,22 @@ package com.kinto2517.vetappointmentbackend.service.impl;
 
 import com.kinto2517.vetappointmentbackend.dto.*;
 import com.kinto2517.vetappointmentbackend.entity.Client;
-import com.kinto2517.vetappointmentbackend.entity.Education;
 import com.kinto2517.vetappointmentbackend.entity.Pet;
-import com.kinto2517.vetappointmentbackend.entity.VetDoctor;
 import com.kinto2517.vetappointmentbackend.mapper.ClientMapper;
-import com.kinto2517.vetappointmentbackend.mapper.EducationMapper;
 import com.kinto2517.vetappointmentbackend.mapper.PetMapper;
 import com.kinto2517.vetappointmentbackend.repository.ClientRepository;
 import com.kinto2517.vetappointmentbackend.repository.PetRepository;
+import com.kinto2517.vetappointmentbackend.request.PasswordChangeRequest;
 import com.kinto2517.vetappointmentbackend.service.ClientService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,12 +26,15 @@ public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
     private final PetRepository petRepository;
+    private final PasswordEncoder passwordEncoder;
+
 
     @Autowired
     public ClientServiceImpl(ClientRepository clientRepository,
-                             PetRepository petRepository) {
+                             PetRepository petRepository, PasswordEncoder passwordEncoder) {
         this.clientRepository = clientRepository;
         this.petRepository = petRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -144,5 +148,22 @@ public class ClientServiceImpl implements ClientService {
         Pet pet = client.getPets().stream().filter(p -> p.getId().equals(petId)).findFirst().orElseThrow();
         return pet.getPhotos();
     }
+
+    @Override
+    public void changePassword(PasswordChangeRequest changePasswordRequest, Principal principal) {
+        Client client = (Client) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+
+        if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), client.getPassword())) {
+            throw new RuntimeException("Old password is incorrect");
+        }
+
+        if (!changePasswordRequest.getNewPassword().equals(changePasswordRequest.getNewPasswordConfirmation())) {
+            throw new RuntimeException("New password and confirm password do not match");
+        }
+
+        client.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        clientRepository.save(client);
+    }
+
 
 }

@@ -13,14 +13,18 @@ import com.kinto2517.vetappointmentbackend.repository.EducationRepository;
 import com.kinto2517.vetappointmentbackend.repository.ExperienceRepository;
 import com.kinto2517.vetappointmentbackend.repository.SpecializationRepository;
 import com.kinto2517.vetappointmentbackend.repository.VetDoctorRepository;
+import com.kinto2517.vetappointmentbackend.request.PasswordChangeRequest;
 import com.kinto2517.vetappointmentbackend.service.VetDoctorService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -32,13 +36,16 @@ public class VetDoctorServiceImpl implements VetDoctorService {
     private final SpecializationRepository specializationRepository;
     private final ExperienceRepository experienceRepository;
     private final EducationRepository educationRepository;
+    private final PasswordEncoder passwordEncoder;
+
 
     @Autowired
-    public VetDoctorServiceImpl(VetDoctorRepository vetDoctorRepository, SpecializationRepository specializationRepository, ExperienceRepository experienceRepository, EducationRepository educationRepository) {
+    public VetDoctorServiceImpl(VetDoctorRepository vetDoctorRepository, SpecializationRepository specializationRepository, ExperienceRepository experienceRepository, EducationRepository educationRepository, PasswordEncoder passwordEncoder) {
         this.vetDoctorRepository = vetDoctorRepository;
         this.specializationRepository = specializationRepository;
         this.experienceRepository = experienceRepository;
         this.educationRepository = educationRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
 
@@ -220,5 +227,21 @@ public class VetDoctorServiceImpl implements VetDoctorService {
 
         vetDoctor.getEducations().remove(education);
         educationRepository.delete(education);
+    }
+
+    @Override
+    public void changePassword(PasswordChangeRequest passwordChangeRequest, Principal principal) {
+        VetDoctor vetDoctor = (VetDoctor) ((UsernamePasswordAuthenticationToken) principal).getPrincipal();
+
+        if (!passwordEncoder.matches(passwordChangeRequest.getOldPassword(), vetDoctor.getPassword())) {
+            throw new RuntimeException("Old password is incorrect");
+        }
+
+        if (!passwordChangeRequest.getNewPassword().equals(passwordChangeRequest.getNewPasswordConfirmation())) {
+            throw new RuntimeException("New password and confirm password do not match");
+        }
+
+        vetDoctor.setPassword(passwordEncoder.encode(passwordChangeRequest.getNewPassword()));
+        vetDoctorRepository.save(vetDoctor);
     }
 }

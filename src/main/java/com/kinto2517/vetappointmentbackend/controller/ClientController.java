@@ -2,20 +2,22 @@ package com.kinto2517.vetappointmentbackend.controller;
 
 import com.kinto2517.vetappointmentbackend.dto.*;
 import com.kinto2517.vetappointmentbackend.entity.Client;
-import com.kinto2517.vetappointmentbackend.entity.VetDoctor;
+import com.kinto2517.vetappointmentbackend.request.PasswordChangeRequest;
 import com.kinto2517.vetappointmentbackend.service.ClientService;
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
 
@@ -27,7 +29,7 @@ public class ClientController {
     private static final Logger logger = LoggerFactory.getLogger(VetDoctorController.class);
 
     @Autowired
-    public ClientController(ClientService clientService) {
+    public ClientController(ClientService clientService ) {
         this.clientService = clientService;
     }
 
@@ -43,7 +45,7 @@ public class ClientController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('CLIENT')")
-    public ResponseEntity<ClientDTO> updateCleint(@PathVariable Long id,
+    public ResponseEntity<ClientDTO> updateClient(@PathVariable Long id,
                                                   @RequestBody ClientMainSaveRequest clientMainSaveRequest,
                                                   Authentication authentication) {
 
@@ -56,6 +58,18 @@ public class ClientController {
         }
 
         return ResponseEntity.ok(clientService.updateClient(id, clientMainSaveRequest));
+    }
+
+    /**
+     * Change Current Client Password
+     */
+
+    @PatchMapping("/change-password")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<Void> changePassword(@RequestBody PasswordChangeRequest changePasswordRequest,
+                                               Principal principal) {
+        clientService.changePassword(changePasswordRequest, principal);
+        return ResponseEntity.ok().build();
     }
 
 

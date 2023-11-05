@@ -41,6 +41,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Transactional
     public AuthenticationResponse clientRegister(ClientSaveRequest request) {
+
         var client = Client.builder()
                 .firstName(request.firstName())
                 .lastName(request.lastName())
@@ -50,6 +51,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .password(passwordEncoder.encode(request.password()))
                 .role(Role.CLIENT)
                 .build();
+        if (clientRepository.existsByUsername(client.getUsername())) {
+            return AuthenticationResponse.builder()
+                    .error("Username already exists")
+                    .build();
+        }
+        if (clientRepository.existsByEmail(client.getEmail())) {
+            return AuthenticationResponse.builder()
+                    .error("Email already exists")
+                    .build();
+        }
         var savedClient = clientRepository.save(client);
         var jwtToken = jwtService.generateToken(client);
         var refreshToken = jwtService.generateRefreshToken(client);
@@ -57,6 +68,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .error(null)
                 .build();
     }
 
@@ -73,6 +85,16 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .role(Role.VETDOCTOR)
                 .email(request.email())
                 .build();
+        if (vetDoctorRepository.existsByUsername(vetDoctor.getUsername())) {
+            return AuthenticationResponse.builder()
+                    .error("Username already exists")
+                    .build();
+        }
+        if (vetDoctorRepository.existsByEmail(vetDoctor.getEmail())) {
+            return AuthenticationResponse.builder()
+                    .error("Email already exists")
+                    .build();
+        }
         var savedVetDoctor = vetDoctorRepository.save(vetDoctor);
         var jwtToken = jwtService.generateToken(vetDoctor);
         var refreshToken = jwtService.generateRefreshToken(vetDoctor);
@@ -80,6 +102,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .error(null)
                 .build();
     }
 
@@ -91,6 +114,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         request.getPassword()
                 )
         );
+
+        if (!clientRepository.existsByUsername(request.getUsername())) {
+            return AuthenticationResponse.builder()
+                    .error("Username does not exist")
+                    .build();
+        }
         var client = clientRepository.findByUsername(request.getUsername())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(client);
@@ -100,6 +129,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .error(null)
                 .build();
     }
 
@@ -110,6 +140,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                         request.getPassword()
                 )
         );
+        if (!vetDoctorRepository.existsByUsername(request.getUsername())) {
+            return AuthenticationResponse.builder()
+                    .error("Username does not exist")
+                    .build();
+        }
         var vetDoctor = vetDoctorRepository.findByUsername(request.getUsername())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(vetDoctor);
@@ -119,6 +154,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
                 .refreshToken(refreshToken)
+                .error(null)
                 .build();
     }
 
@@ -176,7 +212,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String username;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
         refreshToken = authHeader.substring(7);
@@ -204,7 +240,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String refreshToken;
         final String username;
-        if (authHeader == null ||!authHeader.startsWith("Bearer ")) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             return;
         }
         refreshToken = authHeader.substring(7);

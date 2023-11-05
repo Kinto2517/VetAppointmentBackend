@@ -4,6 +4,7 @@ import com.kinto2517.vetappointmentbackend.dto.*;
 import com.kinto2517.vetappointmentbackend.entity.Education;
 import com.kinto2517.vetappointmentbackend.entity.Specialization;
 import com.kinto2517.vetappointmentbackend.entity.VetDoctor;
+import com.kinto2517.vetappointmentbackend.request.PasswordChangeRequest;
 import com.kinto2517.vetappointmentbackend.service.VetDoctorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 import java.util.Objects;
 
@@ -59,6 +61,20 @@ public class VetDoctorController {
         }
 
         return ResponseEntity.ok(vetDoctorService.updateVetDoctor(id, vetDoctorMainSaveRequest));
+    }
+
+    /**
+     * Change Current VetDoctor Password
+     */
+
+    @PatchMapping("/change-password")
+    @PreAuthorize("hasRole('VETDOCTOR')")
+    public ResponseEntity<Void> changePassword(@RequestBody PasswordChangeRequest passwordChangeRequest,
+                                               Principal principal) {
+
+        vetDoctorService.changePassword(passwordChangeRequest, principal);
+
+        return ResponseEntity.ok().build();
     }
 
     /**  PROFILE PICTURE - VET DOCTOR **/

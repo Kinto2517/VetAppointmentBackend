@@ -28,12 +28,20 @@ public class AuthController {
 
     @PostMapping("/clientregister")
     public ResponseEntity<AuthenticationResponse> vetDoctorRegister(@RequestBody ClientSaveRequest request){
-        return ResponseEntity.ok(authenticationService.clientRegister(request));
+        AuthenticationResponse response = authenticationService.clientRegister(request);
+        if (response == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/vetdoctorregister")
     public ResponseEntity<AuthenticationResponse> clientRegister(@RequestBody VetDoctorSaveRequest request){
-        return ResponseEntity.ok(authenticationService.vetDoctorRegister(request));
+        AuthenticationResponse response = authenticationService.vetDoctorRegister(request);
+        if (response == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/clientauthenticate")
@@ -43,10 +51,6 @@ public class AuthController {
 
     @PostMapping("/vetdoctorauthenticate")
     public ResponseEntity<AuthenticationResponse> vetDoctorAuthenticate(@RequestBody AuthenticationRequest request){
-        logger.info("VetDoctor Authenticate");
-        logger.info("Username: {}", request.getUsername());
-        logger.info("Password: {}", request.getPassword());
-
         return ResponseEntity.ok(authenticationService.authenticateVetDoctor(request));
     }
 
@@ -65,4 +69,6 @@ public class AuthController {
     ) throws IOException {
         authenticationService.refreshVetDoctorToken(request, response);
     }
+
+
 }

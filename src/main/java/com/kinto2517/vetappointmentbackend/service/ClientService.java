@@ -1,9 +1,11 @@
 package com.kinto2517.vetappointmentbackend.service;
 
 import com.kinto2517.vetappointmentbackend.dto.*;
+import com.kinto2517.vetappointmentbackend.request.PasswordChangeRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 
 public interface ClientService {
@@ -28,4 +30,6 @@ public interface ClientService {
     void addProfilePicturePet(Long id, Long petId, MultipartFile file) throws IOException;
 
     byte[] getProfilePicturePet(Long id, Long petId);
+
+    void changePassword(PasswordChangeRequest changePasswordRequest, Principal principal);
 }
