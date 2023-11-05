@@ -90,7 +90,7 @@ Start the project with your favorite IDE with Docker running.
 
 ### Vet Doctor Controller
 
-![Screenshot_1](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/c2037ce3-10cb-4e30-a5bd-8e125be65618)
+<img class="img-responsive" src="githubimg/Screenshot_1.png" align="">
 
 * PUT /api/v1/vetdoctors/{id}: Update a VetDoctor's profile including City, Description, Phone Number, Name.
 * PUT /api/v1/vetdoctors/{id}/update-specializations: Update a VetDoctor's specializations. This allows doctor to add pre-created specialization.
@@ -113,7 +113,7 @@ Start the project with your favorite IDE with Docker running.
 
 ### Client Controller
 
-![Screenshot_2](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/bc93ac92-3351-44e5-b576-3170430d4bb7)
+<img class="img-responsive" src="githubimg/Screenshot_2.png" align="">
   
 
 * PUT /api/v1/clients/{id}: Update a client's profile data.
@@ -130,7 +130,7 @@ Start the project with your favorite IDE with Docker running.
 
 ### Rating Controller:
 
-![Screenshot_3](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/dd103329-c6ef-4248-874c-93dda168199f)
+<img class="img-responsive" src="githubimg/Screenshot_3.png" align="">
 
 * POST /api/v1/ratings/{clientid}/create/{vetdoctorid}: Create a rating for a vet doctor given by a client.
 * GET /api/v1/ratings/vetdoctor/{vetdoctorid}: Get ratings for a specific vet doctor.
@@ -138,7 +138,7 @@ Start the project with your favorite IDE with Docker running.
 
 ### Auth Controller
 
-![Screenshot_4](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/ff34c712-1146-42c7-bfa1-436b348efa15)
+<img class="img-responsive" src="githubimg/Screenshot_4.png" align="">
 
 * POST /api/v1/auth/vetdoctorregister: Register a new vet doctor.
 * POST /api/v1/auth/vetdoctorauthenticate: Authenticate a vet doctor.
@@ -149,7 +149,7 @@ Start the project with your favorite IDE with Docker running.
 
 ### Appointment Controller
 
-![Screenshot_5](https://github.com/Kinto2517/VetAppointmentBackend/assets/54002766/ca7e8f73-52c6-48d9-a586-6bc3ccc48868)
+<img class="img-responsive" src="githubimg/Screenshot_5.png" align="">
 
 
 * POST /api/v1/appointments/create-availability/{vet_doctor_id}: Create availability slots for a vet doctor.
